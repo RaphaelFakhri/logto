@@ -6,7 +6,7 @@ import chalk from 'chalk';
 
 import { WellKnownCache } from '#src/caches/well-known.js';
 import { createLogtoConfigLibrary } from '#src/libraries/logto-config.js';
-import { createLogtoConfigQueries } from '#src/queries/logto-config.js';
+import { createTenantConfigQueries } from '#src/queries/logto-config.js';
 
 import createPoolByEnv from './create-pool.js';
 import loadOidcValues from './oidc.js';
@@ -92,7 +92,7 @@ export class EnvSet {
 
     const consoleLog = new ConsoleLog(chalk.magenta('env-set'));
     const wellKnownCache = new WellKnownCache(this.tenantId, new TtlCache(60_000));
-    const logtoConfigQueries = createLogtoConfigQueries(pool, wellKnownCache);
+    const logtoConfigQueries = createTenantConfigQueries(pool, wellKnownCache);
 
     const { getOidcConfigs, promoteScheduledSigningKeyRotation } = createLogtoConfigLibrary({
       logtoConfigs: logtoConfigQueries,

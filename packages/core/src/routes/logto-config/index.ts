@@ -21,6 +21,7 @@ import { getConsoleLogFromContext } from '#src/utils/console.js';
 import type { ManagementApiRouter, RouterInitArgs } from '../types.js';
 
 import logtoConfigActionRoutes from './action.js';
+import logtoConfigAuthenticationPolicyRoutes from './authentication-policy.js';
 import logtoConfigCimdRoutes from './cimd.js';
 import idTokenRoutes from './id-token.js';
 import logtoConfigJwtCustomizerRoutes from './jwt-customizer.js';
@@ -233,4 +234,10 @@ export default function logtoConfigRoutes<T extends ManagementApiRouter>(
   idTokenRoutes(router, tenant);
   logtoConfigActionRoutes(router, tenant);
   logtoConfigCimdRoutes(router, tenant);
+
+  // DEV: OIDC step-up authentication. The tenant freshness window is only enforced while the
+  // feature is on, so its management API is registered with it.
+  if (EnvSet.values.isDevFeaturesEnabled) {
+    logtoConfigAuthenticationPolicyRoutes(router, tenant);
+  }
 }

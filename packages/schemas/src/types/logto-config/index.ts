@@ -195,6 +195,49 @@ export type CimdConfig = z.infer<typeof cimdConfigGuard>;
 /** Applied when the `cimd` row is absent: the feature is opt-in per tenant. */
 export const defaultCimdConfig = Object.freeze({ enabled: false } satisfies CimdConfig);
 
+/* --- Authentication policy --- */
+
+/**
+ * How long an end-user authentication stays recent enough for Logto-enforced sensitive
+ * operations, in seconds, when the tenant has not configured one. This is also the OIDC `max_age`
+ * the Account API advertises in its RFC 9470 challenge.
+ */
+export const defaultMaximumAuthenticationAgeInSeconds = 600;
+
+/** The allowed range of the tenant's maximum authentication age, in seconds: 1 minute to 2 hours. */
+export const maximumAuthenticationAgeInSecondsRange = Object.freeze({
+  min: 60,
+  max: 2 * 60 * 60,
+});
+
+export const maximumAuthenticationAgeInSecondsGuard = z
+  .number()
+  .int()
+  .min(maximumAuthenticationAgeInSecondsRange.min)
+  .max(maximumAuthenticationAgeInSecondsRange.max);
+
+/**
+ * The tenant's authentication policy: what counts as a recent user authentication for
+ * Logto-enforced sensitive operations, regardless of the client that requested them.
+ *
+ * The row is only written once the setting is changed, so readers must fall back to
+ * {@link defaultMaximumAuthenticationAgeInSeconds}.
+ */
+export const authenticationPolicyGuard = z.object({
+  maximumAuthenticationAgeInSeconds: maximumAuthenticationAgeInSecondsGuard.optional(),
+});
+export type AuthenticationPolicy = z.infer<typeof authenticationPolicyGuard>;
+
+/**
+ * The authentication policy with every field resolved, as the Core and public APIs return it. The
+ * `max_age` of the RFC 9470 challenge and the public configuration the Account Center reads share
+ * this shape, so every consumer sees the same window.
+ */
+export const resolvedAuthenticationPolicyGuard = z.object({
+  maximumAuthenticationAgeInSeconds: maximumAuthenticationAgeInSecondsGuard,
+});
+export type ResolvedAuthenticationPolicy = z.infer<typeof resolvedAuthenticationPolicyGuard>;
+
 export enum LogtoTenantConfigKey {
   AdminConsole = 'adminConsole',
   CloudConnection = 'cloudConnection',
@@ -208,6 +251,8 @@ export enum LogtoTenantConfigKey {
   MessageRateLimitOverride = 'messageRateLimitOverride',
   /** Tenant-level switch for the OAuth Client ID Metadata Document feature. */
   Cimd = 'cimd',
+  /** The tenant's authentication policy, e.g. what counts as a recent authentication. */
+  AuthenticationPolicy = 'authenticationPolicy',
 }
 export type LogtoTenantConfigType = {
   [LogtoTenantConfigKey.AdminConsole]: AdminConsoleData;
@@ -217,6 +262,7 @@ export type LogtoTenantConfigType = {
   [LogtoTenantConfigKey.SigningKeyRotationState]: SigningKeyRotationState;
   [LogtoTenantConfigKey.MessageRateLimitOverride]: MessageRateLimitOverride;
   [LogtoTenantConfigKey.Cimd]: CimdConfig;
+  [LogtoTenantConfigKey.AuthenticationPolicy]: AuthenticationPolicy;
 };
 
 export const logtoTenantConfigGuard: Readonly<{
@@ -229,6 +275,7 @@ export const logtoTenantConfigGuard: Readonly<{
   [LogtoTenantConfigKey.SigningKeyRotationState]: signingKeyRotationStateGuard,
   [LogtoTenantConfigKey.MessageRateLimitOverride]: messageRateLimitOverrideGuard,
   [LogtoTenantConfigKey.Cimd]: cimdConfigGuard,
+  [LogtoTenantConfigKey.AuthenticationPolicy]: authenticationPolicyGuard,
 });
 
 /* --- Summary --- */

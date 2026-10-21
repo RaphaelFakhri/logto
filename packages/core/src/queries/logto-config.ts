@@ -29,6 +29,8 @@ import { type WellKnownCache } from '#src/caches/well-known.js';
 import { DeletionError } from '#src/errors/SlonikError/index.js';
 import { convertToIdentifiers } from '#src/utils/sql.js';
 
+import { createAuthenticationPolicyQueries } from './authentication-policy.js';
+
 const { table, fields } = convertToIdentifiers(LogtoConfigs);
 const qualifiedValueField = sql.identifier([LogtoConfigs.table, LogtoConfigs.fields.value]);
 
@@ -319,3 +321,16 @@ export const createLogtoConfigQueries = (
     getMessageRateLimitOverride,
   };
 };
+
+/**
+ * All tenant configuration queries. The authentication policy lives in its own module because it is
+ * enforced on every sensitive request, but it is stored in the same `logto_configs` table and read
+ * through the same tenant query object.
+ */
+export const createTenantConfigQueries = (
+  pool: CommonQueryMethods,
+  wellKnownCache: WellKnownCache
+) => ({
+  ...createLogtoConfigQueries(pool, wellKnownCache),
+  ...createAuthenticationPolicyQueries(pool, wellKnownCache),
+});

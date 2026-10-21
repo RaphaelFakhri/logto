@@ -1,4 +1,8 @@
-import { adminTenantId, fullSignInExperienceGuard } from '@logto/schemas';
+import {
+  adminTenantId,
+  fullSignInExperienceGuard,
+  resolvedAuthenticationPolicyGuard,
+} from '@logto/schemas';
 import { z } from 'zod';
 
 import { EnvSet, getTenantEndpoint } from '#src/env-set/index.js';
@@ -97,4 +101,21 @@ export default function wellKnownRoutes<T extends AnonymousRouter>(
       return next();
     }
   );
+
+  // DEV: OIDC step-up authentication. The Account Center reads the tenant freshness window from
+  // here so its proactive step-up and the Account API policy agree; it falls back to the default
+  // when the feature is off and this route is absent.
+  if (EnvSet.values.isDevFeaturesEnabled) {
+    router.get(
+      '/.well-known/authentication-policy',
+      koaGuard({
+        response: resolvedAuthenticationPolicyGuard,
+        status: 200,
+      }),
+      async (ctx, next) => {
+        ctx.body = await queries.logtoConfigs.getAuthenticationPolicy();
+        return next();
+      }
+    );
+  }
 }

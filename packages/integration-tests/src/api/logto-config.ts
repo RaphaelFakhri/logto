@@ -1,6 +1,7 @@
 import {
   SupportedSigningKeyAlgorithm,
   type AdminConsoleData,
+  type AuthenticationPolicy,
   type OidcConfigKeysResponse,
   type LogtoOidcConfigKeyType,
   type AccessTokenJwtCustomizer,
@@ -13,11 +14,12 @@ import {
   type OidcSessionConfig,
   type LogtoActionKey,
   type LogtoAction,
+  type ResolvedAuthenticationPolicy,
 } from '@logto/schemas';
 
 import { waitFor } from '#src/utils.js';
 
-import { authedAdminApi } from './api.js';
+import api, { authedAdminApi } from './api.js';
 
 // OIDC config mutation APIs invalidate tenant cache asynchronously. These integration helpers wait
 // before returning so follow-up test requests do not race the cache refresh while the production API
@@ -137,3 +139,18 @@ export const updateCimdConfig = async (payload: Partial<CimdConfig>) => {
   await waitForTenantCacheInvalidation();
   return cimdConfig;
 };
+
+export const getAuthenticationPolicy = async () =>
+  authedAdminApi.get('configs/authentication-policy').json<ResolvedAuthenticationPolicy>();
+
+export const updateAuthenticationPolicy = async (payload: AuthenticationPolicy) => {
+  const policy = await authedAdminApi
+    .patch('configs/authentication-policy', { json: payload })
+    .json<ResolvedAuthenticationPolicy>();
+  await waitForTenantCacheInvalidation();
+  return policy;
+};
+
+/** The public authentication policy, as the Account Center reads it. */
+export const getPublicAuthenticationPolicy = async () =>
+  api.get('.well-known/authentication-policy').json<ResolvedAuthenticationPolicy>();

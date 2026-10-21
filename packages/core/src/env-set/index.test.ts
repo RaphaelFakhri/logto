@@ -38,7 +38,7 @@ mockEsm('./create-pool.js', () => ({
 }));
 
 mockEsm('#src/queries/logto-config.js', () => ({
-  createLogtoConfigQueries: jest.fn(() => ({
+  createTenantConfigQueries: jest.fn(() => ({
     getSigningKeyRotationState: mockGetSigningKeyRotationState,
     lockPrivateSigningKeys: mockLockPrivateSigningKeys,
     getPrivateSigningKeys: mockGetPrivateSigningKeys,

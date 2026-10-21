@@ -46,11 +46,13 @@ const next = jest.fn();
 
 /**
  * A tenant whose application lookup resolves the access token's client, so the OIDC branch can
- * tell a first-party application from a third-party one.
+ * tell a first-party application from a third-party one. `maximumAuthenticationAgeInSeconds`
+ * overrides the tenant authentication policy; without it the mock pool resolves the default.
  */
 const createTenantWithApplication = (
   application: Partial<Application> | undefined,
-  verificationRecordsData?: Record<string, unknown>
+  verificationRecordsData?: Record<string, unknown>,
+  maximumAuthenticationAgeInSeconds?: number
 ) =>
   new MockTenant(provider, {
     applications: {
@@ -62,6 +64,11 @@ const createTenantWithApplication = (
         return { ...mockApplication, ...application };
       }),
     },
+    ...(maximumAuthenticationAgeInSeconds !== undefined && {
+      logtoConfigs: {
+        getAuthenticationPolicy: jest.fn(async () => ({ maximumAuthenticationAgeInSeconds })),
+      },
+    }),
     ...(verificationRecordsData && {
       verificationRecords: {
         findActiveVerificationRecordById: jest.fn(async (id: string) => ({
@@ -131,6 +138,41 @@ describe('koaOidcAuth middleware with an OIDC authentication context', () => {
       expect(auth).toMatchObject({ identityVerified: true, isFirstPartyClient: true });
     }
   );
+
+  it('should record the tenant window for the challenge', async () => {
+    const auth = await runMiddleware(
+      createTenantWithApplication({ isThirdParty: false }, undefined, 7200),
+      buildAccessToken({ acr: LogtoAcr.FirstFactor, auth_time: nowInSeconds() })
+    );
+
+    expect(auth).toMatchObject({
+      identityVerified: true,
+      isFirstPartyClient: true,
+      maximumAuthenticationAgeInSeconds: 7200,
+    });
+  });
+
+  it('should accept a context that only satisfies a longer tenant window', async () => {
+    const auth = await runMiddleware(
+      createTenantWithApplication({ isThirdParty: false }, undefined, 7200),
+      buildAccessToken({ acr: LogtoAcr.FirstFactor, auth_time: nowInSeconds() - 7000 })
+    );
+
+    expect(auth).toMatchObject({ identityVerified: true });
+  });
+
+  it('should reject a context that satisfies the default window but not a shorter tenant one', async () => {
+    const auth = await runMiddleware(
+      createTenantWithApplication({ isThirdParty: false }, undefined, 60),
+      buildAccessToken({ acr: LogtoAcr.FirstFactor, auth_time: nowInSeconds() - 120 })
+    );
+
+    expect(auth).toMatchObject({
+      identityVerified: false,
+      isFirstPartyClient: true,
+      maximumAuthenticationAgeInSeconds: 60,
+    });
+  });
 
   it.each([
     ['a stale authentication', { acr: LogtoAcr.FirstFactor, auth_time: nowInSeconds() - 601 }],

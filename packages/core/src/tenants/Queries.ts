@@ -15,7 +15,7 @@ import { createDailyTokenUsageQueries } from '#src/queries/daily-token-usage.js'
 import { createDomainsQueries } from '#src/queries/domains.js';
 import { createHooksQueries } from '#src/queries/hooks.js';
 import { createLogQueries } from '#src/queries/log.js';
-import { createLogtoConfigQueries } from '#src/queries/logto-config.js';
+import { createTenantConfigQueries } from '#src/queries/logto-config.js';
 import { createOidcModelInstanceQueries } from '#src/queries/oidc-model-instance.js';
 import { createOneTimeTokenQueries } from '#src/queries/one-time-tokens.js';
 import OrganizationQueries from '#src/queries/organization/index.js';
@@ -66,7 +66,8 @@ export default class Queries {
   rolesScopes = createRolesScopesQueries(this.pool);
   roles = createRolesQueries(this.pool);
   scopes = createScopeQueries(this.pool);
-  logtoConfigs = createLogtoConfigQueries(this.pool, this.wellKnownCache);
+  logtoConfigs = createTenantConfigQueries(this.pool, this.wellKnownCache);
+
   signInExperiences = createSignInExperienceQueries(this.pool, this.wellKnownCache);
   users = createUserQueries(this.pool);
   usersRoles = createUsersRolesQueries(this.pool);

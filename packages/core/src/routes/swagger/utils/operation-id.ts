@@ -28,6 +28,14 @@ const methodToVerb = Object.freeze({
 type RouteDictionary = Record<`${OpenAPIV3.HttpMethods} ${string}`, string>;
 
 export const customRoutes: Readonly<RouteDictionary> = Object.freeze({
+  // DEV: OIDC step-up authentication. These routes are only registered while the feature is on,
+  // and `throwByDifference` requires this dictionary to describe exactly the built custom routes.
+  ...(EnvSet.values.isDevFeaturesEnabled
+    ? {
+        'get /configs/authentication-policy': 'GetAuthenticationPolicy',
+        'patch /configs/authentication-policy': 'UpdateAuthenticationPolicy',
+      }
+    : {}),
   // Authn
   'get /authn/hasura': 'GetHasuraAuth',
   'post /authn/saml/:connectorId': 'AssertSaml',
