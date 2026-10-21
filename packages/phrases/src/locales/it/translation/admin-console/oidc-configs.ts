@@ -7,6 +7,12 @@ const oidc_configs = {
     "Un limite assoluto di durata dalla creazione della sessione. Indipendentemente dall'attività, la sessione termina allo scadere di questa durata fissa.",
   cloud_private_key_rotation_notice:
     'In Logto Cloud, la rotazione delle chiavi private ha effetto dopo un periodo di grazia di 4 ore.',
+  recent_authentication_card_title: 'Autenticazione recente',
+  recent_authentication_card_description:
+    'Le operazioni sensibili, come la modifica delle impostazioni di sicurezza in Account Center, richiedono un accesso recente. Questa finestra definisce cosa conta come accesso recente per le operazioni applicate da Logto.',
+  maximum_authentication_age_in_minutes: "Età massima dell'autenticazione in minuti",
+  maximum_authentication_age_in_minutes_tip:
+    'Per quanto tempo un accesso resta sufficientemente recente per le operazioni sensibili. Un client può comunque richiedere una finestra più breve con il parametro `max_age`.',
 };
 
 export default Object.freeze(oidc_configs);

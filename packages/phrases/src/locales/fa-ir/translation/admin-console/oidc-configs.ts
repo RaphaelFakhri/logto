@@ -7,6 +7,12 @@ const oidc_configs = {
     'محدودیت مطلق عمر از زمان ایجاد نشست. صرف‌نظر از فعالیت، نشست پس از گذشت این مدت ثابت پایان می‌یابد.',
   cloud_private_key_rotation_notice:
     'در Logto Cloud، چرخش کلید خصوصی پس از دوره مهلت ۴ ساعته اعمال می‌شود.',
+  recent_authentication_card_title: 'احراز هویت اخیر',
+  recent_authentication_card_description:
+    'عملیات حساس، مانند تغییر تنظیمات امنیتی در Account Center، نیازمند ورود اخیر کاربر است. این بازه مشخص می‌کند که چه ورودی برای عملیات اعمال‌شده توسط Logto «اخیر» محسوب می‌شود.',
+  maximum_authentication_age_in_minutes: 'حداکثر عمر احراز هویت بر حسب دقیقه',
+  maximum_authentication_age_in_minutes_tip:
+    'مدت زمانی که یک ورود برای عملیات حساس به‌اندازه کافی جدید باقی می‌ماند. کلاینت همچنان می‌تواند با پارامتر `max_age` بازه کوتاه‌تری درخواست کند.',
 };
 
 export default Object.freeze(oidc_configs);

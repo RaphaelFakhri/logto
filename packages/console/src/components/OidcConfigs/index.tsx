@@ -2,18 +2,15 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import DetailsForm from '@/components/DetailsForm';
-import { isCloud } from '@/consts/env';
+import { isCloud, isDevFeaturesEnabled } from '@/consts/env';
 import InlineNotification from '@/ds-components/InlineNotification';
 import useUserPreferences from '@/hooks/use-user-preferences';
 
+import RecentAuthenticationFormCard from './RecentAuthenticationFormCard';
 import SessionsFormCard from './SessionsFormCard';
 import SigningKeysFormCard from './SigningKeysFormCard';
 import styles from './index.module.scss';
-import useSessionConfigForm, { type SessionConfigFormData } from './use-session-config-form';
-
-type OidcConfigFormData = {
-  session: SessionConfigFormData;
-};
+import useOidcConfigsForm, { type OidcConfigFormData } from './use-oidc-configs-form';
 
 function OidcConfigs() {
   const { t } = useTranslation(undefined, { keyPrefix: 'admin_console' });
@@ -26,7 +23,8 @@ function OidcConfigs() {
     userPreferences.cloudOidcPrivateKeyRotationNoticeAcknowledged
   );
   const formMethods = useForm<OidcConfigFormData>();
-  const { errorMessage, onSubmit } = useSessionConfigForm(formMethods);
+  const { sessionErrorMessage, authenticationPolicyErrorMessage, onSubmit } =
+    useOidcConfigsForm(formMethods);
 
   const {
     reset,
@@ -52,7 +50,12 @@ function OidcConfigs() {
           onSubmit={onSubmit}
           onDiscard={reset}
         >
-          <SessionsFormCard errorMessage={errorMessage} />
+          <SessionsFormCard errorMessage={sessionErrorMessage} />
+          {/* DEV: OIDC step-up authentication. The window is only enforced while the feature is
+              on, so the card is hidden with it. */}
+          {isDevFeaturesEnabled && (
+            <RecentAuthenticationFormCard errorMessage={authenticationPolicyErrorMessage} />
+          )}
           <SigningKeysFormCard />
         </DetailsForm>
       </FormProvider>

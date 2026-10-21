@@ -7,6 +7,12 @@ const oidc_configs = {
     'Eine absolute Lebensdauergrenze ab Erstellung der Sitzung. Unabhängig von Aktivitäten endet die Sitzung, sobald diese feste Dauer abläuft.',
   cloud_private_key_rotation_notice:
     'In Logto Cloud wird die Rotation privater Schlüssel nach einer Kulanzzeit von 4 Stunden wirksam.',
+  recent_authentication_card_title: 'Kürzliche Authentifizierung',
+  recent_authentication_card_description:
+    'Sensible Vorgänge, etwa das Ändern von Sicherheitseinstellungen im Account Center, erfordern eine kürzliche Anmeldung. Dieses Zeitfenster legt fest, wann eine Anmeldung für von Logto erzwungene Vorgänge noch als aktuell gilt.',
+  maximum_authentication_age_in_minutes: 'Maximales Authentifizierungsalter in Minuten',
+  maximum_authentication_age_in_minutes_tip:
+    'Wie lange eine Anmeldung für sensible Vorgänge als aktuell gilt. Ein Client kann mit dem Parameter `max_age` weiterhin ein kürzeres Zeitfenster anfordern.',
 };
 
 export default Object.freeze(oidc_configs);

@@ -9,7 +9,7 @@ import {
   maxSessionTtlInDays,
   minSessionTtlInDays,
   type SessionConfigFormData,
-} from './use-session-config-form';
+} from './use-oidc-configs-form';
 
 type Props = {
   readonly errorMessage?: string;
