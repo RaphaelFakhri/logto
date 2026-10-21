@@ -1,5 +1,10 @@
 import type { SignInExperienceResponse, Platform } from '@experience/shared/types';
-import { Theme, type AccountCenter, type UserProfileResponse } from '@logto/schemas';
+import {
+  Theme,
+  type AccountCenter,
+  type ResolvedAuthenticationPolicy,
+  type UserProfileResponse,
+} from '@logto/schemas';
 import { createContext } from 'react';
 import { isMobile } from 'react-device-detect';
 
@@ -17,6 +22,12 @@ export type PageContextType = {
   setExperienceSettings: React.Dispatch<React.SetStateAction<SignInExperienceResponse | undefined>>;
   accountCenterSettings?: AccountCenter;
   setAccountCenterSettings: React.Dispatch<React.SetStateAction<AccountCenter | undefined>>;
+  /**
+   * The tenant's authentication policy, which decides how recent a sign-in must be for sensitive
+   * operations. `undefined` while it loads, or when the public configuration is unavailable; the
+   * step-up helpers fall back to the default window then.
+   */
+  authenticationPolicy?: ResolvedAuthenticationPolicy;
   userInfo?: Partial<UserProfileResponse>;
   refreshUserInfo: () => Promise<void>;
   userInfoError?: Error;
@@ -37,6 +48,7 @@ const PageContext = createContext<PageContextType>({
   setExperienceSettings: noop,
   accountCenterSettings: undefined,
   setAccountCenterSettings: noop,
+  authenticationPolicy: undefined,
   userInfo: undefined,
   refreshUserInfo: noopAsync,
   userInfoError: undefined,

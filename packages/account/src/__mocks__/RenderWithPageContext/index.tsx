@@ -8,8 +8,10 @@ import {
   SignInMode,
   Theme,
   defaultTrustedDevicePolicy,
+  defaultMaximumAuthenticationAgeInSeconds,
   defaultUsernamePolicy,
   type AccountCenter,
+  type ResolvedAuthenticationPolicy,
   type UserProfileResponse,
 } from '@logto/schemas';
 import { noop } from '@silverhand/essentials';
@@ -156,6 +158,10 @@ const clone = <T,>(value: T): T => {
   return clonedValue;
 };
 
+export const mockAuthenticationPolicy = {
+  maximumAuthenticationAgeInSeconds: defaultMaximumAuthenticationAgeInSeconds,
+} satisfies ResolvedAuthenticationPolicy;
+
 export const createMockPageContext = (
   overrides: Partial<PageContextType> = {}
 ): PageContextType => ({
@@ -168,6 +174,7 @@ export const createMockPageContext = (
   setExperienceSettings: noop,
   accountCenterSettings: clone(mockAccountCenterSettings),
   setAccountCenterSettings: noop,
+  authenticationPolicy: clone(mockAuthenticationPolicy),
   userInfo: clone(mockUserInfo),
   refreshUserInfo: noopAsync,
   userInfoError: undefined,
